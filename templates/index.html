@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MOIL AI Mining Dashboard</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Leaflet Map -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- CSS -->
+    <link rel="stylesheet"
+          href="/static/style.css">
+
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+
+<div class="header">
+
+    <div>
+        <h1>⛏️ MOIL AI Manganese Mining Dashboard</h1>
+
+        <p>
+            AI/ML + Space Technology for
+            Reserve & Production Planning
+        </p>
+    </div>
+
+    <div class="status">
+        🟢 System Online
+    </div>
+
+</div>
+
+
+<!-- ================= SUMMARY CARDS ================= -->
+
+<div class="cards">
+
+    <div class="card clickable"
+         onclick="showInfo('reserve')">
+
+        <div class="icon">🪨</div>
+
+        <h3>Total Predicted Reserve</h3>
+
+        <h2 id="reserve">--</h2>
+
+        <p>Million Tonnes</p>
+
+    </div>
+
+
+    <div class="card clickable"
+         onclick="showInfo('production')">
+
+        <div class="icon">🏭</div>
+
+        <h3>Today's Production</h3>
+
+        <h2 id="production">--</h2>
+
+        <p>Tonnes</p>
+
+    </div>
+
+
+    <div class="card clickable"
+         onclick="showInfo('expected')">
+
+        <div class="icon">📈</div>
+
+        <h3>Expected Production</h3>
+
+        <h2 id="expected">--</h2>
+
+        <p>Tonnes</p>
+
+    </div>
+
+
+    <div class="card clickable"
+         onclick="showInfo('risk')">
+
+        <div class="icon">⚠️</div>
+
+        <h3>Shortfall Risk</h3>
+
+        <h2 id="risk">--</h2>
+
+        <p id="riskPercent">--</p>
+
+    </div>
+
+</div>
+
+
+<!-- ================= MAP ================= -->
+
+<div class="panel map-panel">
+
+    <div class="panel-title">
+
+        <div>
+            <h2>🗺️ Mining Area & Satellite Map</h2>
+
+            <p>
+                AI-based monitoring of mining zones
+            </p>
+        </div>
+
+        <button onclick="locateMiningArea()">
+            📍 Mining Area
+        </button>
+
+    </div>
+
+    <div id="map"></div>
+
+</div>
+
+
+<!-- ================= CHART SECTION ================= -->
+
+<div class="container">
+
+    <!-- Production Trend -->
+
+    <div class="panel">
+
+        <h2>📊 Production Trend</h2>
+
+        <canvas id="productionChart"></canvas>
+
+    </div>
+
+
+    <!-- Risk Chart -->
+
+    <div class="panel">
+
+        <h2>⚠️ Risk Analysis</h2>
+
+        <canvas id="riskChart"></canvas>
+
+    </div>
+
+</div>
+
+
+<!-- ================= RESERVE CHART ================= -->
+
+<div class="container">
+
+    <div class="panel">
+
+        <h2>🪨 Reserve Prediction</h2>
+
+        <canvas id="reserveChart"></canvas>
+
+    </div>
+
+
+    <div class="panel">
+
+        <h2>🌦️ Environmental Parameters</h2>
+
+        <canvas id="environmentChart"></canvas>
+
+    </div>
+
+</div>
+
+
+<!-- ================= RISK ANALYSIS ================= -->
+
+<div class="panel">
+
+    <h2>⚠️ Operational Risk Analysis</h2>
+
+    <div class="risk-box">
+
+        <p>
+            Equipment Downtime
+            <span>70%</span>
+        </p>
+
+        <div class="progress">
+            <div class="bar"
+                 style="width:70%">
+            </div>
+        </div>
+
+
+        <p>
+            Weather Risk
+            <span>60%</span>
+        </p>
+
+        <div class="progress">
+            <div class="bar"
+                 style="width:60%">
+            </div>
+        </div>
+
+
+        <p>
+            Blasting Delay
+            <span>50%</span>
+        </p>
+
+        <div class="progress">
+            <div class="bar"
+                 style="width:50%">
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= RESERVE PREDICTION ================= -->
+
+<div class="panel prediction">
+
+    <h2>🔬 AI Reserve Prediction</h2>
+
+    <p class="subtitle">
+        Enter geological and satellite parameters
+    </p>
+
+
+    <div class="form">
+
+        <input
+            id="depth"
+            type="number"
+            placeholder="Depth (m)">
+
+
+        <input
+            id="grade"
+            type="number"
+            placeholder="Mn Grade (%)">
+
+
+        <input
+            id="ndvi"
+            type="number"
+            step="0.01"
+            placeholder="NDVI">
+
+
+        <input
+            id="soil"
+            type="number"
+            placeholder="Soil Moisture">
+
+
+        <input
+            id="temperature"
+            type="number"
+            placeholder="Temperature °C">
+
+
+        <button
+            onclick="predictReserve()">
+
+            🔮 Predict Reserve
+
+        </button>
+
+    </div>
+
+
+    <div class="result-box">
+
+        <h3 id="reserveResult">
+            Result will appear here
+        </h3>
+
+    </div>
+
+</div>
+
+
+<!-- ================= PRODUCTION PREDICTION ================= -->
+
+<div class="panel prediction">
+
+    <h2>⚠️ AI Production Shortfall Prediction</h2>
+
+    <p class="subtitle">
+        Predict future production using operational and environmental data
+    </p>
+
+
+    <div class="form">
+
+        <input
+            id="rainfall"
+            type="number"
+            placeholder="Rainfall (mm)">
+
+
+        <input
+            id="downtime"
+            type="number"
+            placeholder="Equipment Downtime (hrs)">
+
+
+        <input
+            id="blasting"
+            type="number"
+            placeholder="Blasting Delay (hrs)">
+
+
+        <input
+            id="temp2"
+            type="number"
+            placeholder="Temperature °C">
+
+
+        <input
+            id="soil2"
+            type="number"
+            placeholder="Soil Moisture">
+
+
+        <input
+            id="target"
+            type="number"
+            value="10000"
+            placeholder="Target Production">
+
+
+        <button
+            onclick="predictProduction()">
+
+            📈 Predict Production
+
+        </button>
+
+    </div>
+
+
+    <div class="result-box">
+
+        <h3 id="productionResult">
+            Result will appear here
+        </h3>
+
+    </div>
+
+</div>
+
+
+<!-- ================= AI RECOMMENDATIONS ================= -->
+
+<div class="panel">
+
+    <h2>🤖 AI Recommended Actions</h2>
+
+    <ul id="recommendations">
+
+        <li>
+            Loading recommendations...
+        </li>
+
+    </ul>
+
+</div>
+
+
+<!-- ================= FOOTER ================= -->
+
+<div class="footer">
+
+    <p>
+        MOIL AI Mining Intelligence System
+    </p>
+
+    <p>
+        AI/ML + Sentinel-2 Satellite Data + Mining Analytics
+    </p>
+
+</div>
+
+
+<!-- ================= JAVASCRIPT ================= -->
+
+<script>
+
+/* =========================================
+   MAP
+========================================= */
+
+var map = L.map('map').setView(
+    [20.95, 75.70],
+    10
+);
+
+
+L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        attribution: '© OpenStreetMap contributors'
+    }
+).addTo(map);
+
+
+/* Mining zone marker */
+
+var miningMarker = L.marker(
+    [20.95, 75.70]
+).addTo(map);
+
+
+miningMarker.bindPopup(
+    "<b>MOIL Mining Zone</b><br>" +
+    "Manganese Mining Area<br>" +
+    "AI Monitoring Active"
+).openPopup();
+
+
+/* Mining zone circle */
+
+L.circle(
+    [20.95, 75.70],
+    {
+        radius: 5000
+    }
+).addTo(map);
+
+
+function locateMiningArea() {
+
+    map.setView(
+        [20.95, 75.70],
+        13
+    );
+
+    miningMarker.openPopup();
+
+}
+
+
+/* =========================================
+   PRODUCTION CHART
+========================================= */
+
+const productionCtx =
+    document.getElementById(
+        'productionChart'
+    );
+
+
+new Chart(
+    productionCtx,
+    {
+        type: 'line',
+
+        data: {
+
+            labels: [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun'
+            ],
+
+            datasets: [
+
+                {
+                    label: 'Actual Production',
+
+                    data: [
+                        8200,
+                        8700,
+                        9100,
+                        8800,
+                        9500,
+                        9700
+                    ],
+
+                    borderWidth: 3,
+
+                    tension: 0.4,
+
+                    fill: true
+                },
+
+                {
+                    label: 'Predicted Production',
+
+                    data: [
+                        8500,
+                        8900,
+                        9200,
+                        9400,
+                        9800,
+                        10200
+                    ],
+
+                    borderWidth: 3,
+
+                    borderDash: [8, 5],
+
+                    tension: 0.4
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+                    position: 'bottom'
+                }
+
+            }
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   RISK DOUGHNUT
+========================================= */
+
+new Chart(
+
+    document.getElementById(
+        'riskChart'
+    ),
+
+    {
+
+        type: 'doughnut',
+
+        data: {
+
+            labels: [
+                'Equipment',
+                'Weather',
+                'Blasting',
+                'Other'
+            ],
+
+            datasets: [
+
+                {
+
+                    data: [
+                        70,
+                        60,
+                        50,
+                        20
+                    ],
+
+                    borderWidth: 2
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+                    position: 'bottom'
+                }
+
+            }
+
+        }
+
+    }
+
+);
+
+
+/* =========================================
+   RESERVE CHART
+========================================= */
+
+new Chart(
+
+    document.getElementById(
+        'reserveChart'
+    ),
+
+    {
+
+        type: 'bar',
+
+        data: {
+
+            labels: [
+                '2026',
+                '2027',
+                '2028',
+                '2029',
+                '2030'
+            ],
+
+            datasets: [
+
+                {
+
+                    label:
+                    'Predicted Reserve',
+
+                    data: [
+                        10.5,
+                        10.1,
+                        9.7,
+                        9.3,
+                        8.9
+                    ],
+
+                    borderWidth: 1
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true
+
+        }
+
+    }
+
+);
+
+
+/* =========================================
+   ENVIRONMENT CHART
+========================================= */
+
+new Chart(
+
+    document.getElementById(
+        'environmentChart'
+    ),
+
+    {
+
+        type: 'radar',
+
+        data: {
+
+            labels: [
+
+                'NDVI',
+                'Rainfall',
+                'Temperature',
+                'Soil Moisture',
+                'Mining Activity'
+
+            ],
+
+            datasets: [
+
+                {
+
+                    label:
+                    'Current Conditions',
+
+                    data: [
+                        65,
+                        50,
+                        70,
+                        60,
+                        80
+                    ],
+
+                    borderWidth: 2,
+
+                    pointRadius: 4
+
+                }
+
+            ]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            scales: {
+
+                r: {
+
+                    beginAtZero: true,
+
+                    max: 100
+
+                }
+
+            }
+
+        }
+
+    }
+
+);
+
+
+/* =========================================
+   CARD CLICK EFFECT
+========================================= */
+
+function showInfo(type) {
+
+    alert(
+        "Selected: " +
+        type.toUpperCase()
+    );
+
+}
+
+
+/* =========================================
+   BUTTON TOUCH EFFECT
+========================================= */
+
+document.querySelectorAll(
+    'button'
+).forEach(
+
+    button => {
+
+        button.addEventListener(
+            'click',
+            function() {
+
+                this.classList.add(
+                    'clicked'
+                );
+
+                setTimeout(
+                    () => {
+
+                        this.classList.remove(
+                            'clicked'
+                        );
+
+                    },
+                    300
+                );
+
+            }
+        );
+
+    }
+
+);
+
+</script>
+
+
+<!-- Existing Flask JS -->
+
+<script src="/static/script.js"></script>
+<button>📍 Mining Area</button>
+<a href="/mining-area" class="mining-btn">
+    📍 Mining Area
+</a>
+
+</body>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mining Area</title>
+</head>
+
+<body>
+
+<h1>📍 MOIL Mining Area</h1>
+
+<p>AI-based monitoring of mining zones</p>
+
+<h2>Satellite Mining Map</h2>
+
+<div style="width:100%; height:500px; background:#ddd;">
+    🛰️ Mining Area Map
+</div>
+
+</body>
+</html>
+</html>
